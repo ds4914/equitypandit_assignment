@@ -1,6 +1,6 @@
 import 'package:assignment/presentation/pages/homescreen/home_screen.dart';
 import 'package:assignment/shared/shared.dart';
-import 'package:assignment/shared/widgets/fade_page_route_builder.dart';
+import 'package:assignment/shared/utils/fade_page_route_builder.dart';
 import 'package:flutter/services.dart';
 
 void main() async {
