@@ -1,10 +1,10 @@
-import '../../shared.dart';
+import '../shared.dart';
 
 class CommonAppbar extends StatelessWidget {
-  List<Widget>? actions;
+  final List<Widget>? actions;
   final String title;
   final bool? showBackIcon;
-  CommonAppbar(
+  const CommonAppbar(
       {super.key,
       required this.showBackIcon,
       required this.title,
@@ -22,12 +22,12 @@ class CommonAppbar extends StatelessWidget {
                   Navigator.pop(context);
                 }
               },
-              child: Icon(
+              child: const Icon(
                 Icons.arrow_back_ios_new,
                 color: Colors.white,
               ),
             )
-          : SizedBox.shrink(),
+          : const SizedBox.shrink(),
       title: Text(
         title,
         style: const TextStyle(color: Colors.white),

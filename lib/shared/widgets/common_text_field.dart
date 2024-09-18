@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-import '../../shared.dart';
+import '../shared.dart';
 
 class CommonTextfield extends StatelessWidget {
   const CommonTextfield(

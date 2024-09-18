@@ -21,3 +21,13 @@ class UpdateTaskEvent extends TasklistEvent {
   final int? id;
   UpdateTaskEvent({this.title, this.id, this.description, this.statusId});
 }
+
+class DeleteTaskEvent extends TasklistEvent {
+  final int? id;
+  DeleteTaskEvent({this.id});
+}
+
+class FilterTaskEvent extends TasklistEvent {
+  final int? statusId;
+  FilterTaskEvent({this.statusId});
+}

@@ -1,10 +1,14 @@
 import 'package:assignment/presentation/pages/homescreen/home_screen.dart';
-import 'package:assignment/shared.dart';
+import 'package:assignment/shared/shared.dart';
 import 'package:assignment/shared/widgets/fade_page_route_builder.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   DatabaseHelper();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   runApp(const MyApp());
 }
 

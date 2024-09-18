@@ -1,9 +1,11 @@
+import 'package:assignment/presentation/pages/homescreen/widgets/task_card.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../shared.dart';
+import '../../../shared/shared.dart';
 import '../../../shared/widgets/common_appbar.dart';
 import '../../../shared/widgets/common_button.dart';
 import '../../bloc/checkbox_bloc/checkbox_bloc.dart';
+import '../../bloc/radio_bloc/radio_bloc.dart';
 import 'bloc/task_list_bloc/tasklist_bloc.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -12,8 +14,10 @@ class HomeScreen extends StatelessWidget {
   DatabaseHelper dbHelper = DatabaseHelper();
 
   List<CheckboxBloc> checkboxBloc = [];
-
   TasklistBloc tasklistBloc = TasklistBloc()..add(GetTaskList());
+  RadioBloc radioBloc = RadioBloc()..add(RadioButtonEvent("2"));
+
+  String selectedValue = "2";
 
   @override
   Widget build(BuildContext context) {
@@ -21,28 +25,37 @@ class HomeScreen extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50.h),
         child: CommonAppbar(
-          title: "Home Screen",
+          title: Strings.homeScreen,
           showBackIcon: false,
           actions: [
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, "/addTaskScreen",
-                        arguments: dbHelper)
-                    .then((_) {
-                  tasklistBloc.add(
-                      GetTaskList()); // Refresh the task list after returning from addTaskScreen
+                filterBottomSheet(context);
+              },
+              child: Container(
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(5.r), border: Border.all(color: Colors.white)),
+                child: const Icon(
+                  Icons.filter_alt_outlined,
+                  color: Colors.white,
+                ),
+              ).paddingRight(10.w),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, RouteList.addTaskScreen, arguments: dbHelper).then((_) {
+                  tasklistBloc.add(GetTaskList()); // Refresh the task list after returning from addTaskScreen
                 });
               },
               child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5.r),
-                    border: Border.all(color: Colors.white)),
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(5.r), border: Border.all(color: Colors.white)),
                 child: const Icon(
                   Icons.add,
                   color: Colors.white,
                 ),
-              ).paddingRight(10.w),
-            )
+              ).paddingRight(20.w),
+            ),
           ],
         ),
       ),
@@ -55,147 +68,133 @@ class HomeScreen extends StatelessWidget {
                 return Expanded(
                   child: state.taskList.isEmpty
                       ? const Center(
-                          child: Text("No Tasks Found"),
+                          child: Text(Strings.noTasksFound),
                         )
                       : ListView.builder(
                           itemCount: state.taskList.length,
                           itemBuilder: (context, index) {
                             checkboxBloc.add(CheckboxBloc());
-                            return Card(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(state.taskList[index]['title']),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            color: state.taskList[index]
-                                                        ['statusId'] ==
-                                                    1
-                                                ? Colors.lightGreen
-                                                : Colors.red,
-                                            borderRadius:
-                                                BorderRadius.circular(5.r)),
-                                        child: Text(
-                                          state.taskList[index]['statusId'] == 1
-                                              ? "Completed"
-                                              : "Not Completed",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10.sp),
-                                        ).paddingSymmetric(
-                                            vertical: 5.h, horizontal: 10.w),
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                          child: Text(state.taskList[index]
-                                                  ['description'] ??
-                                              "No Description")),
-                                      Row(
-                                        children: [
-                                          BlocBuilder<CheckboxBloc,
-                                              CheckboxState>(
-                                            bloc: checkboxBloc[index],
-                                            builder: (context, checkBoxState) {
-                                              return Checkbox(
-                                                visualDensity:
-                                                    const VisualDensity(
-                                                        horizontal: -4.0,
-                                                        vertical: -4.0),
-                                                value: (checkBoxState
-                                                        is CheckboxInitial)
-                                                    ? checkBoxState.isChecked
-                                                    : false,
-                                                activeColor: Colors.red,
-                                                onChanged: (value) {
-                                                  if (value == true) {
-                                                    showModalBottomSheet(
-                                                        enableDrag: false,
-                                                        shape: RoundedRectangleBorder(
-                                                            borderRadius: BorderRadius.only(
-                                                                topLeft: Radius
-                                                                    .circular(
-                                                                        20.r),
-                                                                topRight: Radius
-                                                                    .circular(
-                                                                        20.r))),
-                                                        context: context,
-                                                        builder: (context) {
-                                                          return SingleChildScrollView(
-                                                            child: Column(
-                                                              children: [
-                                                                const Text(
-                                                                    "Are you sure you want to complete this task?"),
-                                                                SizedBox(
-                                                                  height: 10.h,
-                                                                ),
-                                                                Row(
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child: CommonButton(
-                                                                          title: "No",
-                                                                          onTap: () {
-                                                                            Navigator.pop(context);
-                                                                          }),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      width:
-                                                                          10.w,
-                                                                    ),
-                                                                    Expanded(
-                                                                      child: CommonButton(
-                                                                          title: "Yes",
-                                                                          color: Colors.lightGreen,
-                                                                          onTap: () {
-                                                                            tasklistBloc.add(UpdateTaskEvent(
-                                                                                statusId: 1,
-                                                                                description: state.taskList[index]['description'],
-                                                                                title: state.taskList[index]['title'],
-                                                                                id: state.taskList[index]['id']));
-                                                                            checkboxBloc[index].add(CheckBoxClickEvent(value!
-                                                                                ? false
-                                                                                : true));
-                                                                            Navigator.pop(context);
-                                                                          }),
-                                                                    )
-                                                                  ],
-                                                                )
-                                                              ],
-                                                            ).paddingSymmetric(
-                                                                horizontal:
-                                                                    20.w,
-                                                                vertical: 10.h),
-                                                          );
-                                                        });
-                                                  }
-                                                },
-                                              );
-                                            },
-                                          ),
-                                          const Text("Complete")
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ).paddingSymmetric(
-                                  horizontal: 14.w, vertical: 5.h),
-                            ).paddingSymmetric(horizontal: 14.w, vertical: 5.h);
+                            return TaskCard(
+                              data: state.taskList[index],
+                              index: index,
+                              checkboxBloc: checkboxBloc,
+                              tasklistBloc: tasklistBloc,
+                            );
                           },
                         ),
                 );
               }
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             },
           )
         ],
       ),
     );
+  }
+
+  Future<void> filterBottomSheet(BuildContext context) {
+    return showModalBottomSheet(
+        enableDrag: false,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(20.r), topRight: Radius.circular(20.r))),
+        context: context,
+        builder: (context) {
+          return SingleChildScrollView(
+            child: BlocBuilder<RadioBloc, RadioState>(
+              bloc: radioBloc,
+              builder: (context, state) {
+                if (state is RadioInitial) {
+                  return Column(
+                    children: [
+                      SizedBox(
+                        height: 5.h,
+                      ),
+                      Text(
+                        Strings.filterList,
+                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          radioBloc.add(RadioButtonEvent("2"));
+                        },
+                        child: ListTile(
+                          visualDensity: const VisualDensity(vertical: -4.0, horizontal: -4.0),
+                          title: const Text(Strings.all),
+                          leading: Radio<String>(
+                            value: '2',
+                            groupValue: state.value,
+                            onChanged: (value) {
+                              radioBloc.add(RadioButtonEvent(value.toString()));
+                            },
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          radioBloc.add(RadioButtonEvent("1"));
+                        },
+                        child: ListTile(
+                          visualDensity: const VisualDensity(vertical: -4.0, horizontal: -4.0),
+                          title: const Text(Strings.completed),
+                          leading: Radio<String>(
+                            value: '1',
+                            groupValue: state.value,
+                            onChanged: (value) {
+                              radioBloc.add(RadioButtonEvent(value.toString()));
+                            },
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          radioBloc.add(RadioButtonEvent("0"));
+                        },
+                        child: ListTile(
+                          visualDensity: const VisualDensity(vertical: -4.0, horizontal: -4.0),
+                          title: const Text(Strings.notCompleted),
+                          leading: Radio<String>(
+                            value: '0',
+                            groupValue: state.value,
+                            onChanged: (value) {
+                              radioBloc.add(RadioButtonEvent(value.toString()));
+                            },
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CommonButton(
+                                color: Colors.white,
+                                textColor: Colors.black,
+                                title: Strings.cancel,
+                                onTap: () {
+                                  Navigator.pop(context);
+                                }),
+                          ),
+                          SizedBox(
+                            width: 10.w,
+                          ),
+                          Expanded(
+                            child: CommonButton(
+                                title: Strings.apply,
+                                onTap: () {
+                                  tasklistBloc.add(FilterTaskEvent(statusId: int.tryParse(state.value!)));
+                                  Navigator.pop(context);
+                                }),
+                          )
+                        ],
+                      ).paddingSymmetric(horizontal: 20.w),
+                      SizedBox(
+                        height: 10.h,
+                      )
+                    ],
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          );
+        });
   }
 }
