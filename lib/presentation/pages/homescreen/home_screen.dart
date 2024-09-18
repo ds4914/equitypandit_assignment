@@ -95,13 +95,14 @@ class HomeScreen extends StatelessWidget {
   Future<void> filterBottomSheet(BuildContext context) {
     return showModalBottomSheet(
         enableDrag: false,
+        isDismissible: false,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(topLeft: Radius.circular(20.r), topRight: Radius.circular(20.r))),
         context: context,
         builder: (context) {
           return SingleChildScrollView(
             child: BlocBuilder<RadioBloc, RadioState>(
-              bloc: radioBloc,
+              bloc: radioBloc..add(RadioButtonEvent(selectedValue)),
               builder: (context, state) {
                 if (state is RadioInitial) {
                   return Column(
@@ -179,6 +180,7 @@ class HomeScreen extends StatelessWidget {
                             child: CommonButton(
                                 title: Strings.apply,
                                 onTap: () {
+                                  selectedValue = state.value.toString();
                                   tasklistBloc.add(FilterTaskEvent(statusId: int.tryParse(state.value!)));
                                   Navigator.pop(context);
                                 }),
